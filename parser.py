@@ -91,7 +91,7 @@ def bin2s(ins):
       shamt = hex(int(ins[21:26],base=10))
       reg1 = '$' + hex(int(ins[16:21],base=2))[2:]
       reg2 = '$' + hex(int(ins[11:16],base=2))[2:]
-      s +=  reg2 + ' ' + reg1 + ' ' + shamt
+      s +=  reg1 + ' ' + reg2 + ' ' + shamt
       return s
     elif funct == 'jr':
       reg1 = '$' + hex(int(ins[6:11],base=2))[2:]
@@ -100,7 +100,7 @@ def bin2s(ins):
       reg1 = '$' + hex(int(ins[16:21],base=2))[2:]
       reg2 = '$' + hex(int(ins[11:16],base=2))[2:]
       reg3 = '$' + hex(int(ins[6:11],base=2))[2:]
-      s += reg3 + ' ' + reg2 + ' ' + reg1
+      s += reg1 + ' ' + reg3 + ' ' + reg2
       return s
 
   elif opcode[1][op] == 'j' or opcode[1][op] == 'jal':
@@ -118,11 +118,11 @@ def bin2s(ins):
       s +=  reg2 + ' ' + imm
     elif s == 'sw ' or s == 'lw ' :
       if imm != '0x0':
-        s += reg1 + ' ' +imm + '(' + reg2 + ')'
+        s += reg2 + ' ' +imm + '(' + reg1 + ')'
       else :
-        s+= reg1 + ' (' + reg2 + ')'
+        s+= reg2 + ' (' + reg1 + ')'
     else:
-      s += reg1 + ' ' + reg2 + ' ' + imm
+      s += reg2 + ' ' + reg1 + ' ' + imm
     return s
 
 
@@ -179,14 +179,14 @@ def s2Hex(ins):
       reg1 = formatBin(token.pop(0)[1:],length=5,ba=16)
       reg2 = formatBin(token.pop(0)[1:],length=5,ba=16)
       shamt = formatBin(token.pop(0),length=5,ba=16)
-      s = s + '00000' + reg1 + reg2 + shamt + temp
+      s = s + '00000' + reg2 + reg1 + shamt + temp
       print(s)
       return formatHex(s,ba=2,length=8)
     else :
       reg1 = formatBin(token.pop(0)[1:],length=5,ba=16)
       reg2 = formatBin(token.pop(0)[1:],length=5,ba=16)
       reg3 = formatBin(token.pop(0)[1:],length=5,ba=16)
-      s = s + reg1 + reg2 + reg3 + '00000' + temp
+      s = s + reg2 + reg3 + reg1 + '00000' + temp
       print(s)
       return formatHex(s,ba=2,length=8)
   # i型指令的翻译
@@ -205,13 +205,13 @@ def s2Hex(ins):
     else :
       imm = formatBin('0',length=16)
     reg2 = formatBin(token[0][index + 2 :token[0].find(")")],length=5,ba=16)
-    s = s + reg1 + reg2 + imm
+    s = s + reg2 + reg1 + imm
     return formatHex(s,ba=2)
   else :
     reg1 = formatBin(token.pop(0)[1:],length=5,ba=16)
     reg2 = formatBin(token.pop(0)[1:],length=5,ba=16)
     imm = formatBin(token.pop(0),length=16,ba=16)
-    s =  s + reg1 + reg2 + imm
+    s =  s + reg2 + reg1 + imm
     print(s)
     return formatHex(s,ba=2)
 
@@ -233,18 +233,21 @@ def hexFile(file):
   writeFile = open(r'hex.data','w')
   with open(file,'r') as f:
     ins = f.readline()
-    while ins:
-      inst = s2Hex(ins[:-1])
-      # print(ins)
-      # print(inst)
-      writeFile.write(inst + '\n')
-      ins = f.readline()
-    f.close()
+    if ins != '\n' or ins!='':
+      while ins:
+        if ins[len(ins)-1] == '\n':
+          ins = ins[:-1]
+        inst = s2Hex(ins)
+        # print(ins)
+        # print(inst)
+        writeFile.write(inst + '\n')
+        ins = f.readline()
+      f.close()
   writeFile.close()
 
 if __name__ == "__main__":
-  file = 'C:\Users\wnx\Desktop\inst.data'
-  sFile(file)
+  file = '1.data'
+  # sFile(file)
   hexFile('data.txt')
  
  
